@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.cctbn.baselibrary">
+
+    <!-- 用于访问网络，网络定位需要上网 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- 硬件加速对X5视频播放非常重要，建议开启 -->
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <application android:networkSecurityConfig="@xml/network_security_config">
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity android:name=".common.activity.BaseActivity" />
+        <!-- 7.0以上调用相机 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity android:name=".mvp.activity.BaseMvpActivity" />
+
+        <service
+            android:name=".common.webview.widget.X5WebService"
+            android:exported="false"></service>
+        <activity android:name=".common.webview.X5WebViewActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <!-- 腾讯X5内核初始化 -->
+        <service android:name="com.tencent.smtt.export.external.DexClassLoaderProviderService"
+            android:label="dexopt"
+            android:process=":dexopt" />
+        <activity android:name=".common.picture.PictureBaseActivity" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"/>
+        <activity android:name=".common.picture.PictureExternalPreviewActivity" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"/>
+        <activity android:name=".common.picture.PicturePlayAudioActivity" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"/>
+        <activity android:name=".common.picture.PicturePreviewActivity" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"/>
+        <activity android:name=".common.picture.PictureSelectorActivity" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"/>
+        <activity android:name=".common.picture.PictureVideoPlayActivity" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"/>
+        <activity android:name=".common.ucrop.UCropActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".common.ucrop.PictureMultiCuttingActivity" android:screenOrientation="portrait"/>
+
+    </application>
+
+</manifest>
