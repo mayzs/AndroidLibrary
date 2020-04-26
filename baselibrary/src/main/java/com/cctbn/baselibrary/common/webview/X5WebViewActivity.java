@@ -26,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cctbn.baselibrary.R;
+import com.cctbn.baselibrary.common.activity.BaseActivity;
 import com.cctbn.baselibrary.common.network.RetrofitUtils;
 import com.cctbn.baselibrary.common.network.delagate.FileCallback;
 import com.cctbn.baselibrary.common.permissions.PermissionsManager;
@@ -35,7 +36,7 @@ import com.cctbn.baselibrary.common.picture.PictureSelector;
 import com.cctbn.baselibrary.common.picture.config.PictureConfig;
 import com.cctbn.baselibrary.common.picture.config.PictureMimeType;
 import com.cctbn.baselibrary.common.picture.entity.LocalMedia;
-import com.cctbn.baselibrary.common.activity.BaseActivity;
+import com.cctbn.baselibrary.common.utils.SPUtils;
 import com.cctbn.baselibrary.common.utils.SystemUtils;
 import com.cctbn.baselibrary.common.webview.widget.X5WebView;
 import com.tencent.smtt.export.external.interfaces.IX5WebChromeClient.CustomViewCallback;
@@ -44,6 +45,7 @@ import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
 import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
 import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.DownloadListener;
+import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebSettings;
@@ -115,6 +117,11 @@ public class X5WebViewActivity extends BaseActivity {
         });
         titleText = getIntent().getStringExtra("title");
         title.setText(titleText);
+        boolean hanLoad = SPUtils.getBoolean(this, "hanLoad");
+        if (!hanLoad){
+            QbSdk.initX5Environment(this,null);
+        }
+        Log.i("tag","==123=="+hanLoad);
     }
 
     protected void setUrl(String url) {
@@ -201,6 +208,7 @@ public class X5WebViewActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
@@ -361,9 +369,8 @@ public class X5WebViewActivity extends BaseActivity {
                             fileName = fileName.substring(0, fileName.indexOf("?"));
                         }
                         contentDisposition = fileName;
-                        downloadFile(url, contentDisposition);
                     }
-
+                    downloadFile(url, contentDisposition);
                 }
 
             }
@@ -432,7 +439,8 @@ public class X5WebViewActivity extends BaseActivity {
 
     private void downloadFile(String url, String contentDisposition) {
         String path = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS;
-        PermissionsManager.getInstance().requestPermissionsIfNecessaryForResult(X5WebViewActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionsResultAction() {
+        PermissionsManager.getInstance().requestPermissionsIfNecessaryForResult(X5WebViewActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ,Manifest.permission.READ_EXTERNAL_STORAGE}, new PermissionsResultAction() {
             @Override
             public void onGranted() {
                 RetrofitUtils.getInstance().get().url(url).execute(new FileCallback(path, contentDisposition) {
@@ -483,6 +491,7 @@ public class X5WebViewActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         TbsLog.d(TAG, "onActivityResult, requestCode:" + requestCode
                 + ",resultCode:" + resultCode);
 
@@ -548,6 +557,7 @@ public class X5WebViewActivity extends BaseActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         if (intent == null || mWebView == null || intent.getData() == null)
             return;
         mWebView.loadUrl(intent.getData().toString());
@@ -934,6 +944,75 @@ public class X5WebViewActivity extends BaseActivity {
         } else if (X5WebViewActivity.this.uploadFileAbovel != null) {
             X5WebViewActivity.this.uploadFileAbovel.onReceiveValue(null);
             X5WebViewActivity.this.uploadFileAbovel = null;
+        }
+    }
+
+    private String fileName="";
+    public void openFileReader(String url) {
+        fileName = url.substring(url.lastIndexOf("/") + 1);
+        int index = fileName.indexOf("?");
+        if (index > 0) {
+            fileName = fileName.substring(0, fileName.indexOf("?"));
+        }
+        if (url.startsWith("http")) {
+            String path = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS;
+            PermissionsManager.getInstance().requestPermissionsIfNecessaryForResult(X5WebViewActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE}, new PermissionsResultAction() {
+                @Override
+                public void onGranted() {
+                    RetrofitUtils.getInstance().get().url(url).execute(new FileCallback(path, fileName) {
+                        @Override
+                        public void onStart() {
+                            showLoading();
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+                           Log.i("tag","===123=="+progress);
+                        }
+
+                        @Override
+                        public void onCompleted(File file) {
+                            dismissLoading();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    QbSdk.openFileReader(X5WebViewActivity.this, file.getAbsolutePath(), null, new ValueCallback<String>() {
+                                        @Override
+                                        public void onReceiveValue(String s) {
+
+                                        }
+                                    });
+                                }
+                            });
+
+                        }
+
+                        @Override
+                        public void onError(String errmsg) {
+                            dismissLoading();
+                            Log.i("tag","===123=="+errmsg);
+                            //Looper.prepare();
+                            showToastMessage(getString(R.string.file_fail_message));
+                            //Looper.loop();
+                        }
+                    });
+                }
+
+                //
+                @Override
+                public void onDenied(String permission) {
+
+                }
+            });
+        }else {
+            QbSdk.openFileReader(X5WebViewActivity.this, url, null, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String s) {
+
+                }
+            });
         }
     }
 }

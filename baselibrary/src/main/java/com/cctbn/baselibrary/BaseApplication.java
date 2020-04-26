@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.cctbn.baselibrary.common.webview.widget.X5WebService;
+import com.tencent.smtt.sdk.QbSdk;
 
 import androidx.multidex.MultiDex;
 
@@ -29,6 +30,7 @@ public class BaseApplication extends Application{
     public void onCreate() {
         super.onCreate();
         preInitX5Core();
+        QbSdk.setDownloadWithoutWifi(true);
     }
     /**
      * 获取全局唯一上下文

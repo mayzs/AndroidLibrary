@@ -11,6 +11,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            //选择要添加的对应cpu类型的.so库 不能添加arm64-v8a 不然x5内核加载不上去
+            abiFilters"armeabi","armeabi-v7a","x86","mips"
+        }
     }
 
     buildTypes {
@@ -28,9 +32,12 @@ android {
         abi {
             enable true
             reset()
-            include 'x86', 'armeabi-v7a','x86_64'
+            include 'x86', 'armeabi-v7a', 'x86_64'
             universalApk true
         }
+    }
+    dataBinding {
+        enabled = true
     }
 }
 

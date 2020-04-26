@@ -1,5 +1,6 @@
 package com.cctbn.baselibrary.common.network.builder;
 
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -202,9 +203,11 @@ public class BaseBuilder {
                             @Override
                             public void run() {
                                 super.run();
+                                Looper.prepare();
                                 if (fileCallback!=null){
                                     fileCallback.saveFile(range,responseBody);
                                 }
+                                Looper.loop();
                             }
                         }.start();
 

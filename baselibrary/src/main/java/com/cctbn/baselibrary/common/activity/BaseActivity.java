@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 
@@ -24,15 +23,15 @@ import androidx.appcompat.app.AppCompatActivity;
 public abstract class BaseActivity extends AppCompatActivity {
 
     private ImmersionBar immersionBar;
-    private ViewGroup mainLayout;
+    //private ViewGroup mainLayout;
     private int barColor = R.color.white;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base);
-        mainLayout = findViewById(R.id.layout);
+        //setContentView(R.layout.activity_base);
+        //mainLayout = findViewById(R.id.layout);
         if (isImmersionBar()) {
             immersionBar = ImmersionBar.with(this);
             if (barColor != 0) {
@@ -72,27 +71,27 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void setContentView(int layoutResID) {
         // TODO Auto-generated method stub
-        if (mainLayout != null) {
-            mainLayout.removeAllViews();
-            mainLayout.addView(this.getLayoutInflater().inflate(layoutResID, null));
-        } else {
+//        if (mainLayout != null) {
+//            mainLayout.removeAllViews();
+//            mainLayout.addView(this.getLayoutInflater().inflate(layoutResID, null));
+//        } else {
             super.setContentView(layoutResID);
-        }
+//        }
 
     }
 
     @Override
     public void setContentView(View view, android.view.ViewGroup.LayoutParams params) {
         // TODO Auto-generated method stub
-        mainLayout.removeAllViews();
-        mainLayout.addView(view, params);
+//        mainLayout.removeAllViews();
+//        mainLayout.addView(view, params);
     }
 
     @Override
     public void setContentView(View view) {
         // TODO Auto-generated method stub
-        mainLayout.removeAllViews();
-        mainLayout.addView(view);
+        //mainLayout.removeAllViews();
+        //mainLayout.addView(view);
     }
 
     @Override
